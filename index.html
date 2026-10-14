@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وەرگێڕی ژیر</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap');
+        * { box-sizing: border-box; font-family: 'Noto Kufi Arabic', sans-serif; }
+        body { background-color: #f0f8ff; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { background: white; width: 100%; max-width: 400px; padding: 30px 20px; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 8px solid #2c3e50; }
+        .header h1 { font-size: 24px; color: #1a4a5e; text-align: center; margin-bottom: 30px; }
+        textarea { width: 100%; height: 120px; border: 1px solid #1a4a5e; border-radius: 15px; padding: 15px; resize: none; margin-bottom: 10px; background: #f8fdfd; }
+        .result-box { width: 100%; min-height: 120px; border-radius: 15px; padding: 15px; background: #1a4a5e; color: white; margin-bottom: 20px; direction: rtl; }
+        .action-btn { background: #1976d2; color: white; border: none; width: 100%; padding: 15px; border-radius: 25px; font-size: 16px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>وەرگێڕی ژیر بە Gemini 🌀</h1>
+    </div>
+
+    <!-- بەشی وەرگێڕانی دەق -->
+    <textarea id="inputText" placeholder="دەقەکەت لێرە بنووسە بە هەر زمانێک بێت..."></textarea>
+    
+    <div style="text-align: center; font-size: 24px; color: #4a6c82; margin: 10px 0;">↓</div>
+    
+    <div id="resultBox" class="result-box">
+        دەقی کوردی لێرە دەردەکەوێت...
+    </div>
+    
+    <button class="action-btn" onclick="translateWithGemini()">وەرگێڕان بۆ کوردی</button>
+</div>
+
+<script>
+    async function translateWithGemini() {
+        // تێبینی: پێویستە لێرەدا کلیلەکەی خۆت دابنێیت
+        const apiKey = "YOUR_GEMINI_API_KEY"; 
+        
+        const text = document.getElementById('inputText').value;
+        const resultBox = document.getElementById('resultBox');
+
+        if (!text) {
+            resultBox.innerText = "تکایە سەرەتا دەقێک بنووسە...";
+            return;
+        }
+
+        resultBox.innerText = "چاوەڕێ بکە... خەریکی وەرگێڕانە ⏳";
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const requestBody = {
+            contents: [{
+                parts: [{
+                    text: `Translate the following text into Kurdish Sorani precisely. Do not add any extra explanations, just provide the translation. Here is the text: "${text}"`
+                }]
+            }]
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+            const data = await response.json();
+            const translatedText = data.candidates[0].content.parts[0].text;
+            resultBox.innerText = translatedText;
+        } catch (error) {
+            resultBox.innerText = "ببورە، کێشەیەک لە هێڵی ئینتەرنێت یان API یەکە هەیە.";
+            console.error(error);
+        }
+    }
+</script>
+
+</body>
+</html>
